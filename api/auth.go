@@ -35,8 +35,6 @@ func AuthMiddleware() gin.HandlerFunc {
 		reqToken = strings.TrimSpace(splitToken[1])
 		token, err := jwt.ParseWithClaims(reqToken, &UserPayload{}, func(t *jwt.Token) (interface{}, error) {
 			brsa := []byte(strings.ReplaceAll(os.Getenv("RSA_PUBLIC_KEY"), "\\n", "\n"))
-			log.Println(os.Getenv("RSA_PUBLIC_KEY"))
-			log.Println(brsa)
 			rsa, err := jwt.ParseRSAPublicKeyFromPEM(brsa)
 			if err != nil {
 				log.Fatal("Error parsing public rsa key: ", err)
