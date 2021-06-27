@@ -16,7 +16,7 @@ func NewServer() *Server {
 
 	store := db.NewStore()
 
-	router.POST("login", server.Login)
+	router.POST("auth/login", server.Login)
 	router.GET("users", AuthMiddleware(), server.getUsers)
 
 	dreamRoute := router.Group("/dream", AuthMiddleware())
