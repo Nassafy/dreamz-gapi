@@ -13,7 +13,7 @@ import (
 func (server *Server) getDreams(c *gin.Context) {
 	userId := c.Keys["userId"].(string)
 	dreamDays := db.GetDreamDays(server.store, userId)
-	c.JSON(http.StatusOK, dreamDays)
+	c.JSON(http.StatusOK, gin.H{"results": dreamDays})
 }
 
 func (server *Server) newDream(c *gin.Context) {
