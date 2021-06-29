@@ -23,8 +23,7 @@ func NewServer() *Server {
 	{
 
 		dreamRoute.GET("", AuthMiddleware(), server.getDreams)
-		dreamRoute.POST("", AuthMiddleware(), server.newDream)
-		dreamRoute.PATCH(":id", AuthMiddleware(), server.updateDream)
+		dreamRoute.POST(":id", AuthMiddleware(), server.newDream)
 	}
 
 	server.router = router

@@ -27,6 +27,6 @@ func GetUser(store *Store, username string) model.User {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	var user model.User
-	store.Client.Database("dreamz").Collection("users").FindOne(ctx, bson.D{{"username", username}}).Decode(&user)
+	store.Client.Database("dreamz").Collection("users").FindOne(ctx, bson.M{"username": username}).Decode(&user)
 	return user
 }

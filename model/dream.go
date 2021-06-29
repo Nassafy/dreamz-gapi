@@ -16,8 +16,7 @@ type dreamMetadata struct {
 }
 
 type techMetadata struct {
-	LastChange *time.Time `json:"lastChange,omitempty"`
-	LastSync   *time.Time `json:"lastSync,omitempty"`
+	LastChange *time.Time `json:"lastChange,omitempty" bson:"lastChange"`
 }
 
 type dream struct {

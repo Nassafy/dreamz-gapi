@@ -17,13 +17,16 @@ func GetDreamDays(store *Store, userId string) []model.DreamDay {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	cur, err := store.Client.Database("dreamz").Collection("dreamdays").Find(ctx, bson.D{{"userId", userId}})
+	cur, err := store.Client.Database("dreamz").Collection("dreamdays").Find(ctx, bson.M{"userId": userId})
 	if err != nil {
 		log.Fatal("Error retrieving dreamDays: ", err)
 	}
 	var dreamDays []model.DreamDay
 	if err = cur.All(ctx, &dreamDays); err != nil {
 		log.Fatal(err)
+	}
+	if dreamDays == nil {
+		dreamDays = []model.DreamDay{}
 	}
 	return dreamDays
 }
@@ -46,7 +49,7 @@ func UpdateDreamDay(store *Store, dream *model.DreamDay, id string) *model.Dream
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	d := getCollection(store).FindOne(ctx, bson.D{{"id", id}, {"userId", dream.UserId}})
+	d := getCollection(store).FindOne(ctx, bson.M{"id": id, "userId": dream.UserId})
 
 	var oDream model.DreamDay
 	err := d.Decode(&oDream)
@@ -65,7 +68,7 @@ func UpdateDreamDay(store *Store, dream *model.DreamDay, id string) *model.Dream
 		ReturnDocument: &after,
 		Upsert:         &upsert,
 	}
-	insered := getCollection(store).FindOneAndUpdate(ctx, bson.D{{"id", id}, {"userId", dream.UserId}}, bson.D{{"$set", dream}}, &opt)
+	insered := getCollection(store).FindOneAndUpdate(ctx, bson.M{"id": id, "userId": dream.UserId}, bson.M{"$set": dream}, &opt)
 	var nDream model.DreamDay
 	err = insered.Decode(nDream)
 	if err != nil {

@@ -21,6 +21,9 @@ func (server *Server) newDream(c *gin.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	if err != nil {
+		log.Fatal(err)
+	}
 	var dream model.DreamDay
 	json.Unmarshal(jsonBody, &dream)
 
