@@ -45,11 +45,11 @@ func NewDreamDay(store *Store, dream *model.DreamDay) primitive.ObjectID {
 	return insered.InsertedID.(primitive.ObjectID)
 }
 
-func UpdateDreamDay(store *Store, dream *model.DreamDay, id string) *model.DreamDay {
+func UpdateDreamDay(store *Store, dream *model.DreamDay) *model.DreamDay {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	d := getCollection(store).FindOne(ctx, bson.M{"id": id, "userId": dream.UserId})
+	d := getCollection(store).FindOne(ctx, bson.M{"id": dream.Id, "userId": dream.UserId})
 
 	var oDream model.DreamDay
 	err := d.Decode(&oDream)
@@ -68,7 +68,7 @@ func UpdateDreamDay(store *Store, dream *model.DreamDay, id string) *model.Dream
 		ReturnDocument: &after,
 		Upsert:         &upsert,
 	}
-	insered := getCollection(store).FindOneAndUpdate(ctx, bson.M{"id": id, "userId": dream.UserId}, bson.M{"$set": dream}, &opt)
+	insered := getCollection(store).FindOneAndUpdate(ctx, bson.M{"id": dream.Id, "userId": dream.UserId}, bson.M{"$set": dream}, &opt)
 	var nDream model.DreamDay
 	err = insered.Decode(nDream)
 	if err != nil {

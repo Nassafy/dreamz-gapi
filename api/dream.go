@@ -34,7 +34,6 @@ func (server *Server) newDream(c *gin.Context) {
 }
 
 func (server *Server) updateDream(c *gin.Context) {
-	id := c.Param("id")
 	jsonBody, err := c.GetRawData()
 	if err != nil {
 		log.Fatal(err)
@@ -45,7 +44,7 @@ func (server *Server) updateDream(c *gin.Context) {
 	userId := c.Keys["userId"].(string)
 	dream.UserId = userId
 
-	updated := db.UpdateDreamDay(server.store, &dream, id)
+	updated := db.UpdateDreamDay(server.store, &dream)
 	if updated == nil {
 		c.String(http.StatusNotFound, "")
 	} else {

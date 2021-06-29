@@ -40,6 +40,10 @@ func (dreamDay *DreamDay) HandleDefault() {
 		dreamDay.Date = &date
 	}
 
+	if dreamDay.Id == "" {
+		dreamDay.Id = uuid.NewV4().String()
+	}
+
 	for i, dream := range dreamDay.Dreams {
 		if dream.Id == "" {
 			dreamDay.Dreams[i].Id = uuid.NewV4().String()
