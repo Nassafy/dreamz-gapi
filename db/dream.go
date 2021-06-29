@@ -5,9 +5,7 @@ import (
 	"time"
 
 	"dreamz.com/api/model"
-	uuid "github.com/satori/go.uuid"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/net/context"
@@ -29,20 +27,6 @@ func GetDreamDays(store *Store, userId string) []model.DreamDay {
 		dreamDays = []model.DreamDay{}
 	}
 	return dreamDays
-}
-
-func NewDreamDay(store *Store, dream *model.DreamDay) primitive.ObjectID {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	if dream.Id == "" {
-		dream.Id = uuid.NewV4().String()
-	}
-	dream.HandleDefault()
-	insered, err := getCollection(store).InsertOne(ctx, dream)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return insered.InsertedID.(primitive.ObjectID)
 }
 
 func UpdateDreamDay(store *Store, dream *model.DreamDay) *model.DreamDay {
@@ -70,7 +54,7 @@ func UpdateDreamDay(store *Store, dream *model.DreamDay) *model.DreamDay {
 	}
 	insered := getCollection(store).FindOneAndUpdate(ctx, bson.M{"id": dream.Id, "userId": dream.UserId}, bson.M{"$set": dream}, &opt)
 	var nDream model.DreamDay
-	err = insered.Decode(nDream)
+	err = insered.Decode(&nDream)
 	if err != nil {
 		log.Print("update dream: ", err)
 	}

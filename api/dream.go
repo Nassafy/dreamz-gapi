@@ -16,23 +16,6 @@ func (server *Server) getDreams(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"results": dreamDays})
 }
 
-func (server *Server) newDream(c *gin.Context) {
-	jsonBody, err := c.GetRawData()
-	if err != nil {
-		log.Fatal(err)
-	}
-	if err != nil {
-		log.Fatal(err)
-	}
-	var dream model.DreamDay
-	json.Unmarshal(jsonBody, &dream)
-
-	userId := c.Keys["userId"].(string)
-	dream.UserId = userId
-	db.NewDreamDay(server.store, &dream)
-	c.JSON(http.StatusCreated, dream)
-}
-
 func (server *Server) updateDream(c *gin.Context) {
 	jsonBody, err := c.GetRawData()
 	if err != nil {
