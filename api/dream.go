@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -23,6 +24,8 @@ func (server *Server) updateDream(c *gin.Context) {
 	}
 	var dream model.DreamDay
 	json.Unmarshal(jsonBody, &dream)
+
+	fmt.Printf("%#v", dream) //with type
 
 	userId := c.Keys["userId"].(string)
 	dream.UserId = userId

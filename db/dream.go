@@ -1,6 +1,7 @@
 package db
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -35,11 +36,12 @@ func UpdateDreamDay(store *Store, dream *model.DreamDay) *model.DreamDay {
 
 	d := getCollection(store).FindOne(ctx, bson.M{"id": dream.Id, "userId": dream.UserId})
 
+	fmt.Print(d)
 	var oDream model.DreamDay
 	err := d.Decode(&oDream)
 	if err != nil {
-		log.Fatal("Error decoding old dream in update: ", err)
-		return nil
+		log.Println("Error decoding old dream in update: ", err)
+		oDream = *dream
 	}
 
 	dream.Id = oDream.Id
