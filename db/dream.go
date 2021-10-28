@@ -30,6 +30,22 @@ func GetDreamDays(store *Store, userId string) []model.DreamDay {
 	return dreamDays
 }
 
+func GetTodayDream(store *Store, userId string) model.DreamDay {
+	currentTime := time.Now()
+	startTime := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 0, 0, 0, 0, currentTime.Location())
+	endTime := startTime.Add(time.Hour * 24)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	result := store.Client.Database("dreamz").Collection("dreamdays").FindOne(ctx, bson.M{"userId": userId, "date": bson.M{"$gte": startTime, "$lte": endTime}})
+
+	var dreamDay model.DreamDay
+	if err := result.Decode(&dreamDay); err != nil {
+		log.Fatal(err)
+	}
+	return dreamDay
+}
+
 func UpdateDreamDay(store *Store, dream *model.DreamDay) *model.DreamDay {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

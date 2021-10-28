@@ -17,6 +17,12 @@ func (server *Server) getDreams(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"results": dreamDays})
 }
 
+func (server *Server) getTodayDream(c *gin.Context) {
+	userId := c.Keys["userId"].(string)
+	dreamdDay := db.GetTodayDream(server.store, userId)
+	c.JSON(http.StatusOK, dreamdDay)
+}
+
 func (server *Server) updateDream(c *gin.Context) {
 	jsonBody, err := c.GetRawData()
 	if err != nil {

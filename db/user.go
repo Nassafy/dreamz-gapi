@@ -2,11 +2,13 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
 	"dreamz.com/api/model"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func GetUsers(store *Store) []model.User {
@@ -29,4 +31,35 @@ func GetUser(store *Store, username string) model.User {
 	var user model.User
 	store.Client.Database("dreamz").Collection("users").FindOne(ctx, bson.M{"username": username}).Decode(&user)
 	return user
+}
+
+func UpdateUser(store *Store, user *model.User) *model.User {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	d := getCollection(store).FindOne(ctx, bson.M{"id": user.Username})
+
+	fmt.Print(d)
+	var oUser model.User
+	err := d.Decode(&oUser)
+	if err != nil {
+		log.Println("Error decoding old dream in update: ", err)
+		oUser = *user
+	}
+
+	user.ID = oUser.ID
+
+	upsert := true
+	after := options.After
+	opt := options.FindOneAndUpdateOptions{
+		ReturnDocument: &after,
+		Upsert:         &upsert,
+	}
+	insered := getCollection(store).FindOneAndUpdate(ctx, bson.M{"username": user.Username}, bson.M{"$set": user}, &opt)
+	var nUser model.User
+	err = insered.Decode(&nUser)
+	if err != nil {
+		log.Print("update dream: ", err)
+	}
+	return &nUser
 }

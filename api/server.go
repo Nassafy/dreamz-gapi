@@ -23,6 +23,7 @@ func NewServer() *Server {
 	{
 
 		dreamRoute.GET("", AuthMiddleware(), server.getDreams)
+		dreamRoute.GET("/today", AuthMiddleware(), server.getTodayDream)
 		dreamRoute.POST("", AuthMiddleware(), server.updateDream)
 	}
 
