@@ -59,7 +59,7 @@ func AuthMiddleware() gin.HandlerFunc {
 func (server *Server) Login(c *gin.Context) {
 	body, err := c.GetRawData()
 	if err != nil {
-		log.Fatal("error getting body:", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "error getting body"})
 	}
 	var jsonBody user
 	json.Unmarshal(body, &jsonBody)
