@@ -8,6 +8,7 @@ import (
 
 	"dreamz.com/api/model"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -29,7 +30,7 @@ func GetUser(store *Store, username string) model.User {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	var user model.User
-	store.Client.Database("dreamz").Collection("users").FindOne(ctx, bson.M{"username": username}).Decode(&user)
+	store.getUserCollection().FindOne(ctx, bson.M{"username": username}).Decode(&user)
 	return user
 }
 
@@ -37,7 +38,7 @@ func UpdateUser(store *Store, user *model.User) *model.User {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	d := getCollection(store).FindOne(ctx, bson.M{"id": user.Username})
+	d := store.getUserCollection().FindOne(ctx, bson.M{"id": user.Username})
 
 	fmt.Print(d)
 	var oUser model.User
@@ -55,11 +56,15 @@ func UpdateUser(store *Store, user *model.User) *model.User {
 		ReturnDocument: &after,
 		Upsert:         &upsert,
 	}
-	insered := getCollection(store).FindOneAndUpdate(ctx, bson.M{"username": user.Username}, bson.M{"$set": user}, &opt)
+	insered := store.getUserCollection().FindOneAndUpdate(ctx, bson.M{"username": user.Username}, bson.M{"$set": user}, &opt)
 	var nUser model.User
 	err = insered.Decode(&nUser)
 	if err != nil {
 		log.Print("update dream: ", err)
 	}
 	return &nUser
+}
+
+func (store *Store) getUserCollection() *mongo.Collection {
+	return store.Client.Database("Dreamz").Collection("user")
 }

@@ -1,6 +1,8 @@
 package api
 
 import (
+	"errors"
+
 	"dreamz.com/api/db"
 	"github.com/gin-gonic/gin"
 )
@@ -38,4 +40,13 @@ func (server *Server) Start(adress string) error {
 
 func (server *Server) CloseStore() {
 	server.store.CloseStore()
+}
+
+func GetUserId(c *gin.Context) (string, error) {
+	userId := c.Keys["userId"]
+	if userId == nil {
+		return "", errors.New("No user id")
+	}
+	return userId.(string), nil
+
 }
