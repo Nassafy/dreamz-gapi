@@ -44,11 +44,13 @@ func UpdateUser(store *Store, user *model.User) *model.User {
 	var oUser model.User
 	err := d.Decode(&oUser)
 	if err != nil {
-		log.Println("Error decoding old dream in update: ", err)
+		log.Println("Error decoding old user in update: ", err)
 		oUser = *user
 	}
 
 	user.ID = oUser.ID
+
+	user.HandleDefault()
 
 	upsert := true
 	after := options.After
@@ -60,11 +62,11 @@ func UpdateUser(store *Store, user *model.User) *model.User {
 	var nUser model.User
 	err = insered.Decode(&nUser)
 	if err != nil {
-		log.Print("update dream: ", err)
+		log.Print("update user: ", err)
 	}
 	return &nUser
 }
 
 func (store *Store) getUserCollection() *mongo.Collection {
-	return store.Client.Database("Dreamz").Collection("user")
+	return store.Client.Database("dreamz").Collection("users")
 }

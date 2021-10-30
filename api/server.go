@@ -19,7 +19,10 @@ func NewServer() *Server {
 	store := db.NewStore()
 
 	router.POST("auth/login", server.Login)
+
+	//TODO delete, mega dangereux
 	router.GET("users", AuthMiddleware(), server.getUsers)
+	router.POST("users", AuthMiddleware(), server.createUser)
 
 	dreamRoute := router.Group("/dream", AuthMiddleware())
 	{
@@ -48,5 +51,4 @@ func GetUserId(c *gin.Context) (string, error) {
 		return "", errors.New("No user id")
 	}
 	return userId.(string), nil
-
 }
