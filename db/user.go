@@ -17,20 +17,28 @@ func GetUsers(store *Store) []model.User {
 	defer cancel()
 	cur, err := store.Client.Database("dreamz").Collection("users").Find(ctx, bson.D{})
 	if err != nil {
-		log.Fatal("Error retrieving user: ", err)
+		log.Panic("Error retrieving user: ", err)
 	}
 	var users []model.User
 	if err = cur.All(ctx, &users); err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 	return users
 }
 
-func GetUser(store *Store, username string) model.User {
+func GetUserByUsername(store *Store, username string) model.User {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	var user model.User
 	store.getUserCollection().FindOne(ctx, bson.M{"username": username}).Decode(&user)
+	return user
+}
+
+func GetUserById(store *Store, id string) model.User {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	var user model.User
+	store.getUserCollection().FindOne(ctx, bson.M{"id": id}).Decode(&user)
 	return user
 }
 
@@ -48,7 +56,7 @@ func UpdateUser(store *Store, user *model.User) *model.User {
 		oUser = *user
 	}
 
-	user.ID = oUser.ID
+	user.Id = oUser.Id
 
 	user.HandleDefault()
 

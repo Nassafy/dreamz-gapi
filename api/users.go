@@ -18,7 +18,7 @@ func (server *Server) getUsers(ctx *gin.Context) {
 func (server *Server) createUser(c *gin.Context) {
 	jsonBody, err := c.GetRawData()
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 	var user model.User
 	json.Unmarshal(jsonBody, &user)

@@ -17,11 +17,11 @@ func GetDreamDays(store *Store, userId string) []model.DreamDay {
 
 	cur, err := store.getDreamCollection().Find(ctx, bson.M{"userId": userId})
 	if err != nil {
-		log.Fatal("Error retrieving dreamDays: ", err)
+		log.Panic("Error retrieving dreamDays: ", err)
 	}
 	var dreamDays []model.DreamDay
 	if err = cur.All(ctx, &dreamDays); err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 	if dreamDays == nil {
 		dreamDays = []model.DreamDay{}

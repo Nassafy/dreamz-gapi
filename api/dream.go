@@ -37,7 +37,7 @@ func (server *Server) getTodayDream(c *gin.Context) {
 func (server *Server) updateDream(c *gin.Context) {
 	jsonBody, err := c.GetRawData()
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 	var dream model.DreamDay
 	json.Unmarshal(jsonBody, &dream)

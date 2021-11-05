@@ -19,6 +19,7 @@ func NewServer() *Server {
 	store := db.NewStore()
 
 	router.POST("auth/login", server.Login)
+	router.POST("/refresh", server.Refresh)
 
 	//TODO delete, mega dangereux
 	router.GET("users", AuthMiddleware(), server.getUsers)
