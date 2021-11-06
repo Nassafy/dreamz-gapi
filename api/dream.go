@@ -33,9 +33,6 @@ func (server *Server) getTodayDream(c *gin.Context) {
 }
 
 func (server *Server) updateDream(c *gin.Context) {
-	// body := make([]byte, 500)
-	// c.Request.Body.Read(body)
-	// log.Println(string(body))
 	var dream model.DreamDay
 	err := c.ShouldBind(&dream)
 	if err != nil {

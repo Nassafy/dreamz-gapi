@@ -27,7 +27,7 @@ type dream struct {
 }
 
 type DreamDay struct {
-	Id           string       `binding:"required" json:"id,omitempty"`
+	Id           string       `json:"id,omitempty"`
 	Date         *time.Time   `json:"date,omitempty"`
 	TechMetadata techMetadata `binding:"required" json:"techMetadata,omitempty" bson:"techMetadata"`
 	UserId       string       `json:"userId,omitempty" bson:"userId"`
