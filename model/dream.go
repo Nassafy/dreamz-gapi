@@ -7,7 +7,7 @@ import (
 )
 
 type dreamMetadata struct {
-	Note     int8     `valid:"range(0,4)" json:"note,omitempty"`
+	Note     int8     `binding:"range(0,4)" json:"note,omitempty"`
 	Lucid    bool     `json:"lucid,omitempty"`
 	Peoples  []string `json:"peoples,omitempty"`
 	Tags     []string `json:"tags,omitempty"`
@@ -16,27 +16,28 @@ type dreamMetadata struct {
 }
 
 type techMetadata struct {
-	LastChange *time.Time `json:"lastChange,omitempty" bson:"lastChange"`
+	LastChange *time.Time `binding:"required" json:"lastChange,omitempty" bson:"lastChange"`
 }
 
 type dream struct {
 	Id            string        `json:"id,omitempty"`
-	Name          string        `valid:"required" json:"name,omitempty"`
-	Text          string        `valid:"required" json:"text,omitempty"`
+	Name          string        `binding:"required" json:"name,omitempty"`
+	Text          string        `binding:"required" json:"text,omitempty"`
 	DreamMetadata dreamMetadata `json:"dreamMetadata,omitempty" bson:"dreamMetadata"`
 }
 
 type DreamDay struct {
-	Id           string       `valid:"required" json:"id,omitempty"`
+	Id           string       `binding:"required" json:"id,omitempty"`
 	Date         *time.Time   `json:"date,omitempty"`
-	TechMetadata techMetadata `json:"techMetadata,omitempty" bson:"techMetadata"`
+	TechMetadata techMetadata `binding:"required" json:"techMetadata,omitempty" bson:"techMetadata"`
 	UserId       string       `json:"userId,omitempty" bson:"userId"`
-	Dreams       []dream      `json:"dreams,omitempty"`
+	Dreams       []dream      `binding:"required" json:"dreams"`
 }
 
 func (dreamDay *DreamDay) HandleDefault() {
 	if dreamDay.Date == nil {
-		date := time.Now()
+		now := time.Now()
+		date := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
 		dreamDay.Date = &date
 	}
 

@@ -1,8 +1,6 @@
 package api
 
 import (
-	"encoding/json"
-	"log"
 	"net/http"
 
 	"dreamz.com/api/db"
@@ -35,13 +33,15 @@ func (server *Server) getTodayDream(c *gin.Context) {
 }
 
 func (server *Server) updateDream(c *gin.Context) {
-	jsonBody, err := c.GetRawData()
-	if err != nil {
-		log.Fatal(err)
-	}
+	// body := make([]byte, 500)
+	// c.Request.Body.Read(body)
+	// log.Println(string(body))
 	var dream model.DreamDay
-	json.Unmarshal(jsonBody, &dream)
-
+	err := c.ShouldBind(&dream)
+	if err != nil {
+		c.Status(http.StatusUnprocessableEntity)
+		return
+	}
 	userId, err := GetUserId(c)
 	if err != nil {
 		noUserIdError(c)
