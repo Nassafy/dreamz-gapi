@@ -19,13 +19,11 @@ func NewServer() *Server {
 
 	store := db.NewStore()
 
-	router.Use(cors.Default())
+	router.Use(cors.AllowAll())
 
 	router.POST("auth/login", server.Login)
 
-	//TODO delete, mega dangereux
-	router.GET("users", AuthMiddleware(), cors.Default(), server.getUsers)
-	router.POST("users", AuthMiddleware(), cors.Default(), server.createUser)
+	router.POST("users", AuthMiddleware(), server.createUser)
 
 	dreamRoute := router.Group("/dream", AuthMiddleware())
 	{
@@ -34,9 +32,9 @@ func NewServer() *Server {
 		dreamRoute.GET("/today", AuthMiddleware(), server.getTodayDream)
 		dreamRoute.POST("", AuthMiddleware(), server.updateDream)
 	}
-
 	server.router = router
 	server.store = store
+
 	return server
 }
 
