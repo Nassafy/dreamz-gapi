@@ -24,8 +24,8 @@ func NewServer() *Server {
 	router.POST("auth/login", server.Login)
 
 	//TODO delete, mega dangereux
-	router.GET("users", AuthMiddleware(), server.getUsers)
-	router.POST("users", AuthMiddleware(), server.createUser)
+	router.GET("users", AuthMiddleware(), cors.Default(), server.getUsers)
+	router.POST("users", AuthMiddleware(), cors.Default(), server.createUser)
 
 	dreamRoute := router.Group("/dream", AuthMiddleware())
 	{
