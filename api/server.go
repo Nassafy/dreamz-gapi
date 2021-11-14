@@ -4,8 +4,8 @@ import (
 	"errors"
 
 	"dreamz.com/api/db"
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	cors "github.com/rs/cors/wrapper/gin"
 )
 
 type Server struct {
