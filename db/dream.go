@@ -15,7 +15,10 @@ func GetDreamDays(store *Store, userId string) []model.DreamDay {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	cur, err := store.getDreamCollection().Find(ctx, bson.M{"userId": userId})
+	queryOptions := options.FindOptions{}
+	queryOptions.SetSort(bson.M{"date": -1})
+
+	cur, err := store.getDreamCollection().Find(ctx, bson.M{"userId": userId}, &queryOptions)
 	if err != nil {
 		log.Fatal("Error retrieving dreamDays: ", err)
 	}
