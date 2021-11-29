@@ -23,6 +23,7 @@ type dream struct {
 	Id            string        `json:"id,omitempty"`
 	Name          string        `binding:"required" json:"name,omitempty"`
 	Text          string        `binding:"required" json:"text,omitempty"`
+	TextNote      string        `json:"textNote,omitempty"`
 	DreamMetadata dreamMetadata `json:"dreamMetadata,omitempty" bson:"dreamMetadata"`
 }
 

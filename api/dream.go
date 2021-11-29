@@ -54,6 +54,16 @@ func (server *Server) updateDream(c *gin.Context) {
 	}
 }
 
+func (server *Server) deleteDream(c *gin.Context) {
+	userId, err := GetUserId(c)
+	if err != nil {
+		noUserIdError(c)
+	}
+	dreamId := c.Param("id")
+	db.DeleteDreamDay(server.store, dreamId, userId)
+	c.Status(http.StatusNoContent)
+}
+
 func noUserIdError(c *gin.Context) {
 	c.JSON(http.StatusForbidden, gin.H{"error": "No user ID"})
 }

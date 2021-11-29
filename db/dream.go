@@ -56,7 +56,7 @@ func UpdateDreamDay(store *Store, dream *model.DreamDay) *model.DreamDay {
 	d := store.getDreamCollection().FindOne(ctx, bson.M{"id": dream.Id, "userId": dream.UserId})
 	err := d.Decode(&oDream)
 
-	if err == nil {
+	if err != nil {
 		oDream = *dream
 	}
 
@@ -77,7 +77,16 @@ func UpdateDreamDay(store *Store, dream *model.DreamDay) *model.DreamDay {
 		log.Panic("error in update dream: ", err)
 	}
 	return &nDream
+}
 
+func DeleteDreamDay(store *Store, id string, userId string) int64 {
+	ctx, cancel := GetContext()
+	defer cancel()
+	res, err := store.getDreamCollection().DeleteOne(ctx, bson.M{"id": id, "userId": userId})
+	if err != nil {
+		log.Panic(err)
+	}
+	return res.DeletedCount
 }
 
 func (store *Store) getDreamCollection() *mongo.Collection {
