@@ -4,7 +4,10 @@ import (
 	"log"
 	"os"
 
-	"dreamz.com/api/api"
+	"dreamz.com/api/auth"
+	"dreamz.com/api/common"
+	"dreamz.com/api/dream"
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
@@ -17,9 +20,11 @@ func main() {
 	port := os.Getenv("PORT")
 	serverAdress := "0.0.0.0:" + port
 
-	server := api.NewServer()
-	defer server.CloseStore()
-	err = server.Start(serverAdress)
+	s := common.NewStore()
+	r := gin.Default()
+	auth.AddAuthRoute(r, s)
+	dream.AddDreamRoute(r, s)
+	r.Run(serverAdress)
 	if err != nil {
 		log.Fatal("cannot start server:", err)
 	}
