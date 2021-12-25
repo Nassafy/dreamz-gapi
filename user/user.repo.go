@@ -26,6 +26,7 @@ func dbGetUsers(store *common.Store) []User {
 	return users
 }
 
+// DbGetUser return a user from the db by is username
 func DbGetUser(store *common.Store, username string) User {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -49,8 +50,6 @@ func dbUpdateUser(store *common.Store, user *User) *User {
 	}
 
 	user.ID = oUser.ID
-
-	user.HandleDefault()
 
 	upsert := true
 	after := options.After

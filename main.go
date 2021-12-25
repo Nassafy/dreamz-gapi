@@ -9,6 +9,7 @@ import (
 	"dreamz.com/api/dream"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	cors "github.com/rs/cors/wrapper/gin"
 )
 
 func main() {
@@ -22,6 +23,7 @@ func main() {
 
 	s := common.NewStore()
 	r := gin.Default()
+	r.Use(cors.AllowAll())
 	auth.AddAuthRoute(r, s)
 	dream.AddDreamRoute(r, s)
 	r.Run(serverAdress)

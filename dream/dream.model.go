@@ -12,7 +12,6 @@ type dreamMetadata struct {
 	Peoples  []string `json:"peoples,omitempty"`
 	Tags     []string `json:"tags,omitempty"`
 	ToReview *bool    `json:"toReview,omitempty"`
-	TextNote *string  `json:"textNote,omitempty"`
 }
 
 type techMetadata struct {
@@ -20,35 +19,36 @@ type techMetadata struct {
 }
 
 type dream struct {
-	Id            string        `json:"id,omitempty"`
+	ID            string        `json:"id,omitempty"`
 	Name          string        `binding:"required" json:"name,omitempty"`
 	Text          string        `binding:"required" json:"text,omitempty"`
 	TextNote      string        `json:"textNote,omitempty"`
 	DreamMetadata dreamMetadata `json:"dreamMetadata,omitempty" bson:"dreamMetadata"`
 }
 
-type DreamDay struct {
-	Id           string       `json:"id,omitempty"`
+// Day struct
+type Day struct {
+	ID           string       `json:"id,omitempty"`
 	Date         *time.Time   `json:"date,omitempty"`
 	TechMetadata techMetadata `binding:"required" json:"techMetadata,omitempty" bson:"techMetadata"`
-	UserId       string       `json:"userId,omitempty" bson:"userId"`
+	UserID       string       `json:"userId,omitempty" bson:"userId"`
 	Dreams       []dream      `binding:"required" json:"dreams"`
 }
 
-func (dreamDay *DreamDay) handleDefault() {
+func (dreamDay *Day) handleDefault() {
 	if dreamDay.Date == nil {
 		now := time.Now()
 		date := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
 		dreamDay.Date = &date
 	}
 
-	if dreamDay.Id == "" {
-		dreamDay.Id = uuid.NewV4().String()
+	if dreamDay.ID == "" {
+		dreamDay.ID = uuid.NewV4().String()
 	}
 
 	for i, dream := range dreamDay.Dreams {
-		if dream.Id == "" {
-			dreamDay.Dreams[i].Id = uuid.NewV4().String()
+		if dream.ID == "" {
+			dreamDay.Dreams[i].ID = uuid.NewV4().String()
 		}
 	}
 }

@@ -18,18 +18,21 @@ type authServer struct {
 	store *common.Store
 }
 
+// User dto
 type User struct {
 	Username string
 	Password string
 }
 
+// UserPayload content of the jwt token
 type UserPayload struct {
-	UserId   string
+	UserID   string
 	Username string
 	jwt.StandardClaims
 }
 
-func AuthMiddleware() gin.HandlerFunc {
+// Middleware gin middlware to ensure the user is authentificated
+func Middleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		reqToken := c.GetHeader("Authorization")
 		splitToken := strings.Split(reqToken, "Bearer")
@@ -53,7 +56,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			if c.Keys == nil {
 				c.Keys = make(map[string]interface{})
 			}
-			c.Keys["userId"] = claims.UserId
+			c.Keys["userID"] = claims.UserID
 			c.Next()
 		} else {
 			c.JSON(http.StatusBadRequest, gin.H{"Error": "Invalid jwt token"})
@@ -61,6 +64,7 @@ func AuthMiddleware() gin.HandlerFunc {
 	}
 }
 
+// AddAuthRoute add the login route to the main router
 func AddAuthRoute(r *gin.Engine, s *common.Store) {
 	server := authServer{store: s}
 	r.POST("auth/login", server.login)
@@ -78,7 +82,7 @@ func (server *authServer) login(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err})
 	} else {
-		claim := &UserPayload{UserId: user.ID.Hex(), Username: user.Username}
+		claim := &UserPayload{UserID: user.ID.Hex(), Username: user.Username}
 		token := jwt.NewWithClaims(jwt.SigningMethodRS256, claim)
 
 		brsa := []byte(strings.ReplaceAll(os.Getenv("RSA_PRIVATE_KEY"), "\\n", "\n"))

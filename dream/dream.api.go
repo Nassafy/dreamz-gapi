@@ -14,52 +14,69 @@ type dreamServer struct {
 	store *common.Store
 }
 
+// AddDreamRoute add the dream route to the main router
 func AddDreamRoute(r *gin.Engine, store *common.Store) {
 	s := dreamServer{store: store}
-	dreamRouter := r.Group("/dream", auth.AuthMiddleware())
-	dreamRouter.GET("", auth.AuthMiddleware(), s.getDreams)
-	dreamRouter.GET(":id", auth.AuthMiddleware(), s.getTodayDream)
-	dreamRouter.POST("", auth.AuthMiddleware(), s.updateDream)
-	dreamRouter.DELETE("", auth.AuthMiddleware(), s.deleteDream)
+	dreamRouter := r.Group("/dream", auth.Middleware())
+	dreamRouter.GET("", s.getDreams)
+	dreamRouter.GET("/today", s.getTodayDream)
+	dreamRouter.GET(":id", s.getDreamDay)
+	dreamRouter.POST("", s.updateDream)
+	dreamRouter.DELETE("", s.deleteDream)
 }
 
 func (s *dreamServer) getDreams(c *gin.Context) {
-	userId, err := GetUserId(c)
+	userID, err := getUserID(c)
 	if err != nil {
-		noUserIdError(c)
+		noUserIDError(c)
 		return
 	}
-	dreamDays := dbGetDreamDays(s.store, userId)
+	dreamDays := dbGetDreamDays(s.store, userID)
 	c.JSON(http.StatusOK, gin.H{"results": dreamDays})
 }
 
 func (s *dreamServer) getTodayDream(c *gin.Context) {
-	userId, err := GetUserId(c)
+	userID, err := getUserID(c)
 	if err != nil {
-		noUserIdError(c)
+		noUserIDError(c)
 		return
 	}
-	dreamdDay := dbGetTodayDream(s.store, userId)
-	if dreamdDay == nil {
+	dreamsDay := dbGetTodayDream(s.store, userID)
+	if dreamsDay == nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Today dream not found"})
 	} else {
-		c.JSON(http.StatusOK, dreamdDay)
+		c.JSON(http.StatusOK, dreamsDay)
+	}
+}
+
+func (s *dreamServer) getDreamDay(c *gin.Context) {
+	dayID := c.Param("id")
+	userID, err := getUserID(c)
+	if err != nil {
+		noUserIDError(c)
+		return
+	}
+	dreamDay := dbGetDreamDay(s.store, userID, dayID)
+	if dreamDay == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Dream not found"})
+	} else {
+		c.JSON(http.StatusOK, dreamDay)
 	}
 }
 
 func (s *dreamServer) updateDream(c *gin.Context) {
-	var dream DreamDay
+	var dream Day
 	err := c.ShouldBind(&dream)
 	if err != nil {
 		c.Status(http.StatusUnprocessableEntity)
 		return
 	}
-	userId, err := GetUserId(c)
+	userID, err := getUserID(c)
 	if err != nil {
-		noUserIdError(c)
+		noUserIDError(c)
 		return
 	}
-	dream.UserId = userId
+	dream.UserID = userID
 
 	updated := dbUpdateDreamDay(s.store, &dream)
 	if updated == nil {
@@ -70,23 +87,23 @@ func (s *dreamServer) updateDream(c *gin.Context) {
 }
 
 func (s *dreamServer) deleteDream(c *gin.Context) {
-	userId, err := GetUserId(c)
+	userID, err := getUserID(c)
 	if err != nil {
-		noUserIdError(c)
+		noUserIDError(c)
 	}
-	dreamId := c.Param("id")
-	DbDeleteDreamDay(s.store, dreamId, userId)
+	dreamID := c.Param("id")
+	DbDeleteDreamDay(s.store, dreamID, userID)
 	c.Status(http.StatusNoContent)
 }
 
-func noUserIdError(c *gin.Context) {
+func noUserIDError(c *gin.Context) {
 	c.JSON(http.StatusForbidden, gin.H{"error": "No user ID"})
 }
 
-func GetUserId(c *gin.Context) (string, error) {
-	userId := c.Keys["userId"]
-	if userId == nil {
+func getUserID(c *gin.Context) (string, error) {
+	userID := c.Keys["userID"]
+	if userID == nil {
 		return "", errors.New("no user id")
 	}
-	return userId.(string), nil
+	return userID.(string), nil
 }

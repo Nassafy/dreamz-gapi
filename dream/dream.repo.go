@@ -11,56 +11,68 @@ import (
 	"golang.org/x/net/context"
 )
 
-func dbGetDreamDays(store *common.Store, userId string) []DreamDay {
+func dbGetDreamDays(store *common.Store, userID string) []Day {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	queryOptions := options.FindOptions{}
 	queryOptions.SetSort(bson.M{"date": -1})
 
-	cur, err := getDreamCollection(store).Find(ctx, bson.M{"userId": userId}, &queryOptions)
+	cur, err := getDreamCollection(store).Find(ctx, bson.M{"userId": userID}, &queryOptions)
 	if err != nil {
 		log.Fatal("Error retrieving dreamDays: ", err)
 	}
-	var dreamDays []DreamDay
+	var dreamDays []Day
 	if err = cur.All(ctx, &dreamDays); err != nil {
 		log.Fatal(err)
 	}
 	if dreamDays == nil {
-		dreamDays = []DreamDay{}
+		dreamDays = []Day{}
 	}
 	return dreamDays
 }
 
-func dbGetTodayDream(store *common.Store, userId string) *DreamDay {
+func dbGetTodayDream(store *common.Store, userID string) *Day {
 	currentTime := time.Now()
 	startTime := time.Date(currentTime.Year(), currentTime.Month(), currentTime.Day(), 0, 0, 0, 0, currentTime.Location())
 	endTime := startTime.Add(time.Hour * 24)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	result := getDreamCollection(store).FindOne(ctx, bson.M{"userId": userId, "date": bson.M{"$gte": startTime, "$lte": endTime}})
+	result := getDreamCollection(store).FindOne(ctx, bson.M{"userId": userID, "date": bson.M{"$gte": startTime, "$lte": endTime}})
 
-	var dreamDay DreamDay
+	var dreamDay Day
 	if err := result.Decode(&dreamDay); err != nil {
 		return nil
 	}
 	return &dreamDay
 }
 
-func dbUpdateDreamDay(store *common.Store, dream *DreamDay) *DreamDay {
+func dbGetDreamDay(store *common.Store, userID string, dreamID string) *Day {
+	ctx, cancel := common.GetContext()
+	defer cancel()
+	result := getDreamCollection(store).FindOne(ctx, bson.M{"userId": userID, "id": dreamID})
+
+	var day Day
+	if err := result.Decode(&day); err != nil {
+		return nil
+	}
+	return &day
+}
+
+func dbUpdateDreamDay(store *common.Store, dream *Day) *Day {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	var oDream DreamDay
-	d := getDreamCollection(store).FindOne(ctx, bson.M{"id": dream.Id, "userId": dream.UserId})
+	var oDream Day
+	d := getDreamCollection(store).FindOne(ctx, bson.M{"id": dream.ID, "userId": dream.UserID})
 	err := d.Decode(&oDream)
 
 	if err != nil {
 		oDream = *dream
 	}
 
-	dream.Id = oDream.Id
+	dream.ID = oDream.ID
 	dream.Date = oDream.Date
 	dream.handleDefault()
 
@@ -70,8 +82,8 @@ func dbUpdateDreamDay(store *common.Store, dream *DreamDay) *DreamDay {
 		ReturnDocument: &after,
 		Upsert:         &upsert,
 	}
-	insered := getDreamCollection(store).FindOneAndUpdate(ctx, bson.M{"id": dream.Id, "userId": dream.UserId}, bson.M{"$set": dream}, &opt)
-	var nDream DreamDay
+	insered := getDreamCollection(store).FindOneAndUpdate(ctx, bson.M{"id": dream.ID, "userId": dream.UserID}, bson.M{"$set": dream}, &opt)
+	var nDream Day
 	err = insered.Decode(&nDream)
 	if err != nil {
 		log.Panic("error in update dream: ", err)
@@ -79,10 +91,11 @@ func dbUpdateDreamDay(store *common.Store, dream *DreamDay) *DreamDay {
 	return &nDream
 }
 
-func DbDeleteDreamDay(store *common.Store, id string, userId string) int64 {
+// DbDeleteDreamDay delete a dream from the database
+func DbDeleteDreamDay(store *common.Store, id string, userID string) int64 {
 	ctx, cancel := common.GetContext()
 	defer cancel()
-	res, err := getDreamCollection(store).DeleteOne(ctx, bson.M{"id": id, "userId": userId})
+	res, err := getDreamCollection(store).DeleteOne(ctx, bson.M{"id": id, "userId": userID})
 	if err != nil {
 		log.Panic(err)
 	}
