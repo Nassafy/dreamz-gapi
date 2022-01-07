@@ -22,7 +22,7 @@ func AddDreamRoute(r *gin.Engine, store *common.Store) {
 	dreamRouter.GET("/today", s.getTodayDream)
 	dreamRouter.GET(":id", s.getDreamDay)
 	dreamRouter.POST("", s.updateDream)
-	dreamRouter.DELETE("", s.deleteDream)
+	dreamRouter.DELETE(":id", s.deleteDream)
 }
 
 func (s *dreamServer) getDreams(c *gin.Context) {
